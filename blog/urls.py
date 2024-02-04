@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from post.views import hello_view, \
@@ -14,4 +16,4 @@ urlpatterns = [
     path('product/', products_list_view),
     path('product/<int:product_id>', products_detail_view),
     path('category/', categories_view),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
