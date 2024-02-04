@@ -41,7 +41,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'blog.urls'
 
-TEMPLATES = [
+TEMPLATES = [   # Настройка шаблонов в html
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
@@ -59,7 +59,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'blog.wsgi.application'
+WSGI_APPLICATION = 'blog.wsgi.application' #Запуск нашего кода
 
 
 # Database
@@ -78,7 +78,7 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [   # Проверка
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', # Проверка на схложесть ЛОГИНА и ПАРОЛЯ
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', # Проверка на схожесть ЛОГИНА и ПАРОЛЯ
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', # Проверка на итнтиальное значение

@@ -17,11 +17,16 @@ response - объект который содержит информацию о 
 status - код состоаяние который будет возвращен пользователью
 
 render - функция которая отображает шаблон и возвращает ответ
+
+QuerySet - набор объектов, полученных в результате запроса к базе данных.
+
 '''
 
 from django.shortcuts import render
 from django.http import HttpResponse
 from datetime import datetime
+
+from post.models import Product
 
 
 def hello_view(request):
@@ -43,3 +48,36 @@ def current_view(request):
 def main_page_view(request):
     if request.method == 'GET':
         return render(request, 'index.html')
+
+
+def products_page_view(request):
+    if request.method == 'GET':
+        return render(request, 'index.html')
+
+
+def products_list_view(request):
+    if request.method == 'GET':
+        products = Product.objects.all()
+
+        return render(
+            request,
+            'products/products.html',
+            context={'products': products, 'name': 'Vasya'}
+        )
+
+
+def products_detail_view(request, product_id):
+    if request.method == 'GET':
+        try:
+            product = Product.objects.get(id=product_id)
+        except:
+            return render(
+                request,
+                'errors/404.html',
+            )
+
+        return render(
+            request,
+            'products/products_detail.html',
+            context={'product': product}
+        )
