@@ -26,7 +26,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from datetime import datetime
 
-from post.models import Product
+from post.models import Product, Category
 
 
 def hello_view(request):
@@ -81,3 +81,12 @@ def products_detail_view(request, product_id):
             'products/products_detail.html',
             context={'product': product}
         )
+
+
+def categories_view(request):
+    if request.method == 'GET':
+        categories = Category.objects.all()
+        context = {
+            "categories": categories,
+        }
+        return render(request, 'products/categories.html', context=context)
