@@ -22,11 +22,12 @@ QuerySet - набор объектов, полученных в результа
 
 '''
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from datetime import datetime
 
-from post.models import Product, Category
+from post.forms import ProductCreateForm, CategoryCreateForm, CommentCreateForm
+from post.models import Product, Category, Comment
 
 
 def hello_view(request):
@@ -66,23 +67,6 @@ def products_list_view(request):
         )
 
 
-def products_detail_view(request, product_id):
-    if request.method == 'GET':
-        try:
-            product = Product.objects.get(id=product_id)
-        except:
-            return render(
-                request,
-                'errors/404.html',
-            )
-
-        return render(
-            request,
-            'products/products_detail.html',
-            context={'product': product}
-        )
-
-
 def categories_view(request):
     if request.method == 'GET':
         categories = Category.objects.all()
@@ -90,3 +74,59 @@ def categories_view(request):
             "categories": categories,
         }
         return render(request, 'products/categories.html', context=context)
+
+
+def product_create_view(request):
+    if request.method == 'GET':
+        context = {
+            "form": ProductCreateForm()
+        }
+        return render(request, 'products/products.create.html', context=context)
+    elif request.method == 'POST':
+        form = ProductCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            Product.objects.create(**form.cleaned_data)
+            return redirect('/product/')
+        context = {  # Если формачка не валидна он вернет обратно
+            "form": ProductCreateForm()
+        }
+        return render(request, 'products/products.create.html', context=context)
+
+
+def category_create_view(request):
+    if request.method == 'GET':
+        context = {
+            "form": CategoryCreateForm()
+        }
+        return render(request, 'products/categories.create.html', context=context)
+    elif request.method == 'POST':
+        form = CategoryCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            Category.objects.create(**form.cleaned_data)
+            return redirect('/category/')
+        context = {  # Если формачка не валидна он вернет обратно
+            "form": CategoryCreateForm()
+        }
+        return render(request, 'products/categories.create.html', context=context)
+
+
+def product_detail_view(request, product_id):
+    if request.method == 'GET':
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return render(request, 'errors/404.html')
+        context = { # Нужен для html для получения всех полей продукта
+            "product": product,
+            'form': CommentCreateForm()
+        }
+        return render(request, 'products/products_detail.html', context)
+    elif request.method == 'POST':
+        form = CommentCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            Comment.objects.create(product_id=product_id, **form.cleaned_data)
+            return redirect(f'/product/{product_id}/')
+        context = {
+            'form': form,
+        }
+        return render(request, 'products/products_detail.html', context)

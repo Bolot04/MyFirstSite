@@ -26,11 +26,20 @@
 <h1>Comments:</h1>
 
 {% for comment in product.comments.all %}
-    <p>
-        {{ comment.text }}
-    </p>
-    <p>
-        {{ comment.created_at }}
-    </p>
+<p>
+    {{ comment.text }}
+</p>
+<p>
+    {{ comment.created_at }}
+</p>
 {% endfor %}
+
+<div class="create_comment">
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Add comment">
+    </form>
+</div>
+
 {% endblock %}
