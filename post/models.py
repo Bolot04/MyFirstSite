@@ -1,6 +1,7 @@
 '''
 файл в котором содержится описание базы данных
 '''
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -19,6 +20,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)  # Дата создания
     updated_at = models.DateTimeField(auto_now=True)  # Дата последнего обновления\
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.id} - {self.title}'
@@ -27,4 +29,4 @@ class Product(models.Model):
 class Comment(models.Model):
     text = models.TextField(null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='comments')
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE)

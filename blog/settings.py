@@ -27,8 +27,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'post',
+    'users',
 
 ]
 #СПЕЦАЛЬНЫЕ КУСКИ КОДА ДЛЯ ТОГО ЧТОБЫ ЗНВТЬ КТО ПОСЕШАЕТ ИЛИ ЖЕ СКОЛЬКО ПОСИТИЛИ
@@ -121,3 +121,5 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField' #
 
+# LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'

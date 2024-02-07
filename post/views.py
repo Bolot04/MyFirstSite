@@ -21,7 +21,7 @@ render - функция которая отображает шаблон и во
 QuerySet - набор объектов, полученных в результате запроса к базе данных.
 
 '''
-
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from datetime import datetime
@@ -56,15 +56,38 @@ def products_page_view(request):
         return render(request, 'index.html')
 
 
+@login_required  # Декаратор смотрящий на наличие логина user
 def products_list_view(request):
     if request.method == 'GET':
-        products = Product.objects.all()
+        products = Product.objects.all().exclude(user=request.user)
 
         return render(
             request,
             'products/products.html',
             context={'products': products, 'name': 'Vasya'}
         )
+
+
+def product_detail_view(request, product_id):
+    if request.method == 'GET':
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return render(request, 'errors/404.html')
+        context = {  # Нужен для html для получения всех полей продукта
+            "product": product,
+            'form': CommentCreateForm()
+        }
+        return render(request, 'products/products_detail.html', context)
+    elif request.method == 'POST':
+        form = CommentCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            Comment.objects.create(product_id=product_id, **form.cleaned_data)
+            return redirect(f'/product/{product_id}/')
+        context = {
+            'form': form,
+        }
+        return render(request, 'products/products_detail.html', context)
 
 
 def categories_view(request):
@@ -108,25 +131,3 @@ def category_create_view(request):
             "form": CategoryCreateForm()
         }
         return render(request, 'products/categories.create.html', context=context)
-
-
-def product_detail_view(request, product_id):
-    if request.method == 'GET':
-        try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist:
-            return render(request, 'errors/404.html')
-        context = { # Нужен для html для получения всех полей продукта
-            "product": product,
-            'form': CommentCreateForm()
-        }
-        return render(request, 'products/products_detail.html', context)
-    elif request.method == 'POST':
-        form = CommentCreateForm(request.POST, request.FILES)
-        if form.is_valid():
-            Comment.objects.create(product_id=product_id, **form.cleaned_data)
-            return redirect(f'/product/{product_id}/')
-        context = {
-            'form': form,
-        }
-        return render(request, 'products/products_detail.html', context)
