@@ -1,5 +1,7 @@
 from django import forms
 
+from users.models import Profile
+
 
 class RegisterForm(forms.Form):
     username = forms.CharField(max_length=10)
@@ -21,3 +23,7 @@ class LoginForm(forms.Form):
     password = forms.CharField(max_length=8)
 
 
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['username', 'email', 'bio', 'profile_pic']

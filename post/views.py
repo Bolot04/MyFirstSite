@@ -22,10 +22,12 @@ QuerySet - набор объектов, полученных в результа
 
 '''
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.db.models import Q
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from datetime import datetime
 
+from blog import settings
 from post.forms import ProductCreateForm, CategoryCreateForm, CommentCreateForm
 from post.models import Product, Category, Comment
 
@@ -56,16 +58,53 @@ def products_page_view(request):
         return render(request, 'index.html')
 
 
-@login_required  # Декаратор смотрящий на наличие логина user
+@login_required
 def products_list_view(request):
     if request.method == 'GET':
-        products = Product.objects.all().exclude(user=request.user)
+        products = Product.objects.all()
+        categories = Category.objects.all()
+        selected_category = request.GET.get('category')
+        search = request.GET.get('search')
+        order = request.GET.get('order')
+        if selected_category:
+            category = get_object_or_404(Category, title=selected_category)
+            products = products.filter(category=category)
+        elif search:
+            products = products.filter(
+                Q(title__icontains=search)
+            )
+        elif order == 'title':
+            products = products.order_by('title')
+        elif order == '-title':
+            products = products.order_by('-title')
+        elif order == 'created_at':
+            products = products.order_by('created_at')
+        elif order == '-created_at':
+            products = products.order_by('-created_at')
+        else:
+            products = products.exclude(user=request.user)
 
-        return render(
-            request,
-            'products/products.html',
-            context={'products': products, 'name': 'Vasya'}
-        )
+        max_page = products.__len__() / settings.PAGE_SIZE
+
+        if round(max_page) < max_page:
+            max_page = round(max_page) + 1
+        else:
+            max_page = round(max_page)
+
+        page = int(request.GET.get('page', 1))
+
+        start = (page - 1) * settings.PAGE_SIZE
+        end = page * settings.PAGE_SIZE
+
+        products = products[start:end]
+
+        context = {
+            "products": products,
+            "selected_category": selected_category,
+            "categories": categories,
+            "pages": range(1, max_page + 1)
+        }
+        return render(request, 'products/products.html', context=context)
 
 
 def product_detail_view(request, product_id):
@@ -114,6 +153,24 @@ def product_create_view(request):
             "form": ProductCreateForm()
         }
         return render(request, 'products/products.create.html', context=context)
+
+
+def product_update_view(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return render(request, 'errors/404.html')
+    if request.method == 'GET':
+        context = {
+            "form": ProductCreateForm(instance=product)
+        }
+        return render(request, 'products/product_update.html', context)
+    elif request.method == 'POST':
+        form = ProductCreateForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect(f'/product/{product.id}/')
+        return render(request, 'products/product_update.html', {"form": form})
 
 
 def category_create_view(request):
