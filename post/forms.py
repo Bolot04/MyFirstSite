@@ -6,7 +6,7 @@ from post.models import Product, Comment, Category
 class ProductCreateForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ('title', 'content', 'photo', 'rate') # Поля которые мы хоти видеть взятые из моделек
+        fields = ('title', 'content', 'photo', 'rate', 'category') # Поля которые мы хотим видеть взятые из моделек
 
 
 class CategoryCreateForm(forms.ModelForm):
@@ -19,3 +19,4 @@ class CommentCreateForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ('text',)
+

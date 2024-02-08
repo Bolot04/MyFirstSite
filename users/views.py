@@ -27,16 +27,15 @@ def login_view(request):
     elif request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            user = authenticate(**form.cleaned_data) # authenticate - проверяет на наличие users в БД
+            user = authenticate(**form.cleaned_data)  # authenticate - проверяет на наличие users в БД
             if user is not None:
                 login(request, user)
                 return redirect('/product/')
             else:
                 form.add_error('username', 'Invalid username or password')
-        else:
-            return render(request, 'users/login.html', {'form': LoginForm})
+        return render(request, 'users/login.html', {'form': LoginForm})
 
 
 def logout_view(request):
     logout(request)
-    return redirect('/product/')
+    return redirect('/category/')
